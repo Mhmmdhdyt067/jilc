@@ -42,14 +42,6 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: Generate key
       run: php artisan key:generate
-    - name: Clear cache
-      run: php artisan cache:clear
-    - name: Configuration caching
-      run: php artisan config:cache
-    - name: Route caching
-      run: php artisan route:cache
-    - name: Clear view
-      run: php artisan view:clear
     - name: Run Style Fixer
       run: ./vendor/bin/pint
     - name: Upload Laravel core to /htdocs/tojilc/
