@@ -7,7 +7,7 @@
             <h3 class="mb-0">Daftar Materi</h3>
             @if (auth()->user()->role === 'admin')
             <button class="btn btn-primary" data-toggle="modal" data-target="#modalTambahMateri">
-                <i class="fas fa-plus"></i> Tambah Materis
+                <i class="fas fa-plus"></i> Tambah Materi
             </button>
             @endif
         </div>
