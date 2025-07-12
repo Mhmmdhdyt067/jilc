@@ -36,8 +36,6 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-    - name: Run migrations
-      run: php artisan migrate --force
     - name: Setting up file storage
       run: php artisan storage:link
     - name: Directory Permissions
