@@ -1,0 +1,73 @@
+name: Development
+
+on:
+  push:
+    branches: [ "development" ]
+  pull_request:
+    branches: [ "development" ]
+
+jobs:
+  dev-tests:
+
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: secret
+          MYSQL_DATABASE: databasenilai
+          MYSQL_ROOT_PASSWORD: root
+          DB_PORT: 3306
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+    - uses: actions/checkout@v3
+    - name: Verify MySQL connection
+      run: mysql --host 127.0.0.1 --port 3306 -uuser -psecret -e "SHOW DATABASES"
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Setting up file storage
+      run: php artisan storage:link
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+    - name: Generate key
+      run: php artisan key:generate
+    - name: Clear cache
+      run: php artisan cache:clear
+    - name: Configuration caching
+      run: php artisan config:cache
+    - name: Route caching
+      run: php artisan route:cache
+    - name: Clear view
+      run: php artisan view:clear
+    - name: Run Style Fixer
+      run: ./vendor/bin/pint
+    - name: Upload FTP Dev
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ SECRETS.FTP_DEV_HOST }}
+        username: ${{ SECRETS.FTP_DEV_USER }}
+        password: ${{ SECRETS.FTP_DEV_PASS }}
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/vendor/**
+          **/.phpunit.cache/**
+          **/storage/logs/**
+          **/storage/debugbar/**
+          **/storage/clockwork/**
+          **/storage/framework/cache/data/**
+          .env
+          bootstrap/cache/config.php
+          public/hot
